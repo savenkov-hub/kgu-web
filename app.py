@@ -19,41 +19,28 @@ class Article(db.Model):
         return '<Article %r>' % self.id
 
 
-@app.route('/')
+#Вызов старой главной, не активна, оставим на всякий случай
 @app.route('/home')
 def index():
     return render_template("index.html")
 
 
-@app.route('/about')
-def about():
-    return render_template("about.html")
-
-
+#Вызов главной страницы которая также есть список постов
+@app.route('/')
 @app.route('/posts')
 def posts():
     articles = Article.query.order_by(Article.date.desc()).all()
     return render_template("posts.html", articles=articles)
 
 
+#Вызов детальной страницы поста
 @app.route('/posts/<int:id>')
 def post_detail(id):
     article = Article.query.get(id)
     return render_template("post_detail.html", article=article)
 
 
-@app.route('/posts/<int:id>/del')
-def post_delete(id):
-    article = Article.query.get_or_404(id)
-
-    try:
-        db.session.delete(article)
-        db.session.commit()
-        return redirect('/posts')
-    except:
-        return 'При удалении статьи произошла ошибка'
-
-
+#Вызов метода\страницы добавления поста
 @app.route('/creat-article', methods=['POST', 'GET'])
 def creat_article():
     if request.method == "POST":
@@ -73,6 +60,20 @@ def creat_article():
         return render_template("creat-article.html")
 
 
+#Вызов метода удаления поста
+@app.route('/posts/<int:id>/del')
+def post_delete(id):
+    article = Article.query.get_or_404(id)
+
+    try:
+        db.session.delete(article)
+        db.session.commit()
+        return redirect('/posts')
+    except:
+        return 'При удалении статьи произошла ошибка'
+
+
+#Вызов метода\страницы изменения поста
 @app.route('/posts/<int:id>/update', methods=['POST', 'GET'])
 def post_update(id):
     article = Article.query.get(id)
